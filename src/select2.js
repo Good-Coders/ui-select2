@@ -42,7 +42,22 @@ angular.module('ui.select2', []).value('uiSelect2Config', {}).directive('uiSelec
           if (opts.simple_tags) {
             model = [];
             angular.forEach(select2_data, function(value, index) {
-              model.push(value.id);
+              var value = value.id;
+              /*
+              Check to see if the value exists in the tags, if so use that one, in case the letters are different case IE engine VS Engine
+               */
+              if (opts.multiple && opts.tags && !isSelect) {
+                var regEx = new RegExp('(^|,)' + value + '(,|$)', 'gi'); // Notice regex is case insensitive
+                if(regEx.test(model.join(','))){ // Check to see if this result is already in the model
+                  return;
+                }
+
+                var tags = opts.tags.join(',');
+                if (regEx.test(tags)) {
+                  value = tags.match(regEx)[0].replace(/,/g, '');
+                }
+              }
+              model.push(value);
             });
           } else {
             model = select2_data;
